@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Resume Scorer - AI-Powered Resume Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>Resume Scorer</h1>
+                </div>
+                <p class="subtitle">AI-Powered Resume Analysis Using RAG & OpenAI</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-container">
+                    <h2>Analyze Your Resume</h2>
+                    <p>Upload your resume and job description to get started</p>
+
+                    <form id="uploadForm" class="upload-form">
+                        <!-- Resume Upload -->
+                        <div class="form-group">
+                            <label for="resumeFile" class="file-label">
+                                <i class="fas fa-file-upload"></i>
+                                <span>Upload Resume</span>
+                                <p class="file-hint">PDF, DOCX, or TXT</p>
+                            </label>
+                            <input 
+                                type="file" 
+                                id="resumeFile" 
+                                name="resume" 
+                                accept=".pdf,.docx,.txt"
+                                required
+                            >
+                            <div class="file-name" id="resumeFileName"></div>
+                        </div>
+
+                        <!-- Job Description Upload -->
+                        <div class="form-group">
+                            <label for="jdFile" class="file-label">
+                                <i class="fas fa-file-upload"></i>
+                                <span>Upload Job Description</span>
+                                <p class="file-hint">PDF, DOCX, or TXT</p>
+                            </label>
+                            <input 
+                                type="file" 
+                                id="jdFile" 
+                                name="jd" 
+                                accept=".pdf,.docx,.txt"
+                                required
+                            >
+                            <div class="file-name" id="jdFileName"></div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-spark"></i>
+                            Analyze Resume
+                        </button>
+                    </form>
+
+                    <!-- Error Message -->
+                    <div id="errorMessage" class="error-message hidden"></div>
+                </div>
+            </section>
+
+            <!-- Batch Analysis Section -->
+            <section class="upload-section">
+                <div class="upload-container">
+                    <button id="toggleBatchMode" class="toggle-mode-btn">
+                        <i class="fas fa-layer-group"></i>
+                        Switch to Batch Analysis (Multiple Resumes)
+                    </button>
+
+                    <form id="batchForm" class="upload-form hidden">
+                        <h2>Rank Multiple Candidates</h2>
+                        <p>Upload multiple resumes and rank them against a job description</p>
+
+                        <!-- Multiple Resumes Upload -->
+                        <div class="form-group">
+                            <label for="batchResumesFile" class="file-label">
+                                <i class="fas fa-file-upload"></i>
+                                <span>Upload Resumes (Multiple)</span>
+                                <p class="file-hint">Select multiple PDF, DOCX, or TXT files</p>
+                            </label>
+                            <input 
+                                type="file" 
+                                id="batchResumesFile" 
+                                name="resumes" 
+                                accept=".pdf,.docx,.txt"
+                                multiple
+                                required
+                            >
+                            <div class="file-name" id="batchResumesFileName"></div>
+                        </div>
+
+                        <!-- Batch Job Description Upload -->
+                        <div class="form-group">
+                            <label for="batchJdFile" class="file-label">
+                                <i class="fas fa-file-upload"></i>
+                                <span>Upload Job Description</span>
+                                <p class="file-hint">PDF, DOCX, or TXT</p>
+                            </label>
+                            <input 
+                                type="file" 
+                                id="batchJdFile" 
+                                name="jd" 
+                                accept=".pdf,.docx,.txt"
+                                required
+                            >
+                            <div class="file-name" id="batchJdFileName"></div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary" id="batchSubmitBtn">
+                            <i class="fas fa-ranking-star"></i>
+                            Rank Candidates
+                        </button>
+                    </form>
+
+                    <!-- Error Message -->
+                    <div id="batchErrorMessage" class="error-message hidden"></div>
+                </div>
+            </section>
+
+            <!-- Batch Results Section -->
+            <section id="batchResultsSection" class="results-section hidden">
+                <div class="results-container">
+                    <!-- Loading State -->
+                    <div id="batchLoadingState" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <p>Analyzing resumes and ranking candidates...</p>
+                    </div>
+
+                    <!-- Batch Results Content -->
+                    <div id="batchResultsContent" class="results-content hidden">
+                        <!-- Analysis Summary -->
+                        <div class="card summary-card">
+                            <h3><i class="fas fa-chart-bar"></i> Analysis Summary</h3>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <div class="summary-label">Total Candidates</div>
+                                    <div class="summary-value" id="totalCandidates">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Average Score</div>
+                                    <div class="summary-value" id="averageScore">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Highest Score</div>
+                                    <div class="summary-value" id="highestScore">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Lowest Score</div>
+                                    <div class="summary-value" id="lowestScore">0</div>
+                                </div>
+                            </div>
+                            <div class="score-distribution">
+                                <h4>Score Distribution</h4>
+                                <div id="scoreDistribution"></div>
+                            </div>
+                        </div>
+
+                        <!-- All Candidates Scores -->
+                        <div class="card scores-card">
+                            <h3><i class="fas fa-list-ol"></i> All Candidates Scores</h3>
+                            <div id="allCandidatesScores" class="candidates-scores-list"></div>
+                        </div>
+
+                        <!-- Rankings Table -->
+                        <div class="card rankings-card">
+                            <h3><i class="fas fa-ranking-star"></i> Detailed Rankings</h3>
+                            <div class="table-container">
+                                <table class="rankings-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Resume File</th>
+                                            <th>Score</th>
+                                            <th>Assessment</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rankingsTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Top Candidate Highlight -->
+                        <div class="card top-candidate-card">
+                            <h3><i class="fas fa-crown"></i> Top Candidate</h3>
+                            <div id="topCandidateContent"></div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button id="downloadBatchReportBtn" class="btn btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Download Rankings Report
+                            </button>
+                            <button id="newBatchAnalysisBtn" class="btn btn-primary">
+                                <i class="fas fa-redo"></i>
+                                New Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="resultsSection" class="results-section hidden">
+                <div class="results-container">
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <p>Analyzing your resume...</p>
+                    </div>
+
+                    <!-- Results Content -->
+                    <div id="resultsContent" class="results-content hidden">
+                        <!-- Score Card -->
+                        <div class="score-card">
+                            <div class="score-circle">
+                                <span class="score-value" id="scoreValue">0</span>
+                                <span class="score-label">/ 100</span>
+                            </div>
+                            <div class="score-info">
+                                <h3 id="scoreTitle">Perfect Match!</h3>
+                                <p id="scoreDescription">Your resume matches the job description very well.</p>
+                            </div>
+                        </div>
+
+                        <!-- Assessment -->
+                        <div class="card assessment-card">
+                            <h3><i class="fas fa-comment-dots"></i> Overall Assessment</h3>
+                            <p id="assessmentText"></p>
+                        </div>
+
+                        <!-- Matching Skills -->
+                        <div class="card skills-card">
+                            <h3><i class="fas fa-check-circle"></i> Matching Skills</h3>
+                            <div id="matchingSkillsList" class="skills-list"></div>
+                        </div>
+
+                        <!-- Gaps -->
+                        <div class="card gaps-card">
+                            <h3><i class="fas fa-exclamation-circle"></i> Skills to Develop</h3>
+                            <div id="gapsList" class="gaps-list"></div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button id="downloadBtn" class="btn btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Download Report
+                            </button>
+                            <button id="newAnalysisBtn" class="btn btn-primary">
+                                <i class="fas fa-redo"></i>
+                                New Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Text Input Section -->
+            <section class="text-input-section">
+                <div class="toggle-section">
+                    <button id="toggleTextInput" class="toggle-btn">
+                        <i class="fas fa-keyboard"></i>
+                        Or paste text directly
+                    </button>
+                </div>
+
+                <div id="textInputForm" class="text-input-form hidden">
+                    <h3>Analyze Using Text</h3>
+                    
+                    <div class="form-group">
+                        <label for="resumeText">Resume Text</label>
+                        <textarea 
+                            id="resumeText" 
+                            placeholder="Paste your resume content here..."
+                            rows="6"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jdText">Job Description Text</label>
+                        <textarea 
+                            id="jdText" 
+                            placeholder="Paste the job description here..."
+                            rows="6"
+                        ></textarea>
+                    </div>
+
+                    <button type="button" id="analyzeTextBtn" class="btn btn-primary">
+                        <i class="fas fa-spark"></i>
+                        Analyze Text
+                    </button>
+
+                    <div id="textErrorMessage" class="error-message hidden"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 RAG Resume Scorer. Powered by FastAPI & OpenAI.</p>
+            <p>
+                <a href="http://localhost:8000/docs" target="_blank">API Docs</a> | 
+                <a href="http://localhost:8000/redoc" target="_blank">API Reference</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

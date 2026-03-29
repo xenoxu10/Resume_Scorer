@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Resume Scoring</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Scoring with OpenAI</h1>
+        <form action="/score" method="post" enctype="multipart/form-data">
+            <div class="field">
+                <label for="jd">Job Description (PDF or TXT, single file)</label>
+                <input type="file" id="jd" name="jd" accept=".pdf,.txt" required />
+            </div>
+            <div class="field">
+                <label for="resumes">Resumes (PDF or TXT, multiple allowed)</label>
+                <input type="file" id="resumes" name="resumes" multiple accept=".pdf,.txt" required />
+            </div>
+            <div class="field">
+                <label for="top_k">Top K results</label>
+                <input type="number" id="top_k" name="top_k" value="10" min="1" max="100" />
+            </div>
+            <button type="submit">Score Resumes</button>
+        </form>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        {% if results %}
+        <h2>Results for {{ jd_name }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Resume</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for idx, (name, score) in enumerate(results, start=1) %}
+                <tr>
+                    <td>{{ idx }}</td>
+                    <td>{{ name }}</td>
+                    <td>{{ '%.2f'|format(score) }}/100</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</body>
+</html>

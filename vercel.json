@@ -2,9 +2,6 @@
   "buildCommand": "pip install --no-cache-dir -r requirements.txt",
   "outputDirectory": "public",
   "framework": "fastapi",
-  "python": {
-    "version": "3.12"
-  },
   "functions": {
     "api/index.py": {
       "runtime": "python3.12",

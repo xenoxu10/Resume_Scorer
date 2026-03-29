@@ -4,7 +4,6 @@
   "framework": "fastapi",
   "functions": {
     "api/index.py": {
-    
       "includeFiles": "backend/**"
     }
   },

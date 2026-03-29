@@ -1,20 +1,5 @@
 {
   "buildCommand": "pip install --no-cache-dir -r requirements.txt",
   "outputDirectory": "public",
-  "framework": "fastapi",
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "backend/**"
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
+  "framework": "fastapi"
 }

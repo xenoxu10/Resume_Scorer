@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pip install --no-build-isolation -r requirements.txt",
+  "buildCommand": "pip install --no-cache-dir -r requirements.txt",
   "outputDirectory": "public",
   "framework": "fastapi",
   "python": {
